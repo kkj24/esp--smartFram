@@ -15,6 +15,7 @@ class WiFi_lib {
         void monitDisp();
 
         bool stateWiFi();
+        int WiFiSignal();
 
         void Login();
 

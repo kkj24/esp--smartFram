@@ -20,6 +20,9 @@ class TFT_Lib {
         void pBar(uint8_t input, uint8_t x_pos, uint8_t y_pos, uint8_t width, uint8_t height, uint16_t color1, uint16_t color2 = TFT_CYAN);  // Draw Progress bar Automate
         void soft_pBar(uint8_t input, uint8_t no_bar, uint8_t x_pos, uint8_t y_pos, uint8_t width, uint8_t height, uint16_t color1, uint16_t color2 = TFT_CYAN); // Draw progress bar with soft animation
 
+        void WiFiLevel_Icon(uint8_t x_pos, uint8_t y_pos, uint8_t signal_level);    // WiFi Signal Status Indicator
+        void MQTTstate_Icon(uint8_t x_pos, uint8_t y_pos, bool connect_status);    // MQTT Connection Indicator
+
     private:
         const static uint8_t index_max = 10; // Maximum Soft Bar 
         uint8_t inputLast[index_max] = {0};

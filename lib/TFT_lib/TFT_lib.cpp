@@ -15,6 +15,7 @@ void TFT_Lib::TFTBegin() {
     tft_lib.begin();
     tft_lib.init();
     tft_lib.setRotation(2); // Potrait
+    tft_lib.setSwapBytes(true);
     tft_lib.fillScreen(TFT_BLACK); // Fill Screen with Black Color
 
     ledcSetup(1, 10000, 8);
@@ -72,4 +73,138 @@ void TFT_Lib::soft_pBar(uint8_t input, uint8_t no_bar, uint8_t x_pos, uint8_t y_
     //tft_lib.fillScreen(TFT_BLACK);
     tft_lib.fillRect(inputLast[no_bar] + x_pos, y_pos + 1, width - inputLast[no_bar] - 1, height - 2, grey);    // Refresh Progress Bar
     tft_lib.fillRect(x_pos + 1, y_pos + 1, inputLast[no_bar], height - 2, color2);      // Draw Progress Bar
+}
+
+// Draw WiFi Level Icon  Progress
+void TFT_Lib::WiFiLevel_Icon(uint8_t x_pos, uint8_t y_pos, uint8_t signal_level) {
+    uint16_t grey_icon = tft_lib.color565(94, 94, 94);
+    uint16_t black_icon = TFT_BLACK;
+    uint16_t white_icon = TFT_WHITE;
+
+    //Icon5 = Strongest Signal [lev:4]
+    static const uint16_t wifi_5[] PROGMEM = {
+        black_icon, black_icon, black_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon,
+        black_icon, black_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon,
+        black_icon, white_icon, white_icon, white_icon, black_icon, black_icon, black_icon, black_icon, black_icon, black_icon, black_icon,
+        white_icon, white_icon, white_icon, black_icon, black_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon,
+        white_icon, white_icon, black_icon, black_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon,
+        white_icon, white_icon, black_icon, white_icon, white_icon, white_icon, black_icon, black_icon, black_icon, black_icon, black_icon,
+        white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, black_icon, white_icon, white_icon, white_icon, white_icon,
+        white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon, white_icon, white_icon, white_icon,
+        white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, black_icon, black_icon,
+        white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon,
+        white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon
+    };
+    
+    //Icon4 = Strong Signal [lev:3]
+    static const uint16_t wifi_4[] PROGMEM = {
+        black_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        black_icon, grey_icon, grey_icon, grey_icon, black_icon, black_icon, black_icon, black_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, grey_icon, black_icon, black_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon,
+        grey_icon, grey_icon, black_icon, black_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon,
+        grey_icon, grey_icon, black_icon, white_icon, white_icon, white_icon, black_icon, black_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, black_icon, white_icon, white_icon, black_icon, black_icon, white_icon, white_icon, white_icon, white_icon,
+        grey_icon, grey_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon, white_icon, white_icon, white_icon,
+        grey_icon, grey_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon,
+        grey_icon, grey_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon
+    };
+
+    //Icon3 = Weak Signal [lev:2]
+    static const uint16_t wifi_3[] PROGMEM = {
+        black_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        black_icon, grey_icon, grey_icon, grey_icon, black_icon, black_icon, black_icon, black_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, grey_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, grey_icon, black_icon, black_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, black_icon, white_icon, white_icon, white_icon, white_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, white_icon, white_icon, white_icon, white_icon, white_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, white_icon, white_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, white_icon, white_icon, black_icon, white_icon, white_icon
+    };
+
+    //Icon2 = Weakless Signal [lev:1]
+    static const uint16_t wifi_2[] PROGMEM = {
+        black_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        black_icon, grey_icon, grey_icon, grey_icon, black_icon, black_icon, black_icon, black_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, grey_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, grey_icon, black_icon, black_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, white_icon, white_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, white_icon, white_icon
+    };
+
+    //Icon0 = Lost Signal [lev:0]
+    static const uint16_t wifi_1[] PROGMEM = {
+        black_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        black_icon, grey_icon, grey_icon, grey_icon, black_icon, black_icon, black_icon, black_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, grey_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, grey_icon, black_icon, black_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, black_icon, black_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, grey_icon
+    };
+
+    if(signal_level == 5)
+        tft_lib.pushImage(x_pos, y_pos, 11, 11, wifi_5);    // Strongest signal
+    else if(signal_level == 4) 
+        tft_lib.pushImage(x_pos, y_pos, 11, 11, wifi_4);    // Strong signal
+    else if(signal_level == 3) 
+        tft_lib.pushImage(x_pos, y_pos, 11, 11, wifi_3);    // Weak Signal
+    else if(signal_level == 2) 
+        tft_lib.pushImage(x_pos, y_pos, 11, 11, wifi_2);    // Weakless Signal
+    else if(signal_level == 1) 
+        tft_lib.pushImage(x_pos, y_pos, 11, 11, wifi_1);    // No Signal
+}
+
+void TFT_Lib::MQTTstate_Icon(uint8_t x_pos, uint8_t y_pos, bool connect_status) {
+    uint16_t g = tft_lib.color565(94, 94, 94);
+    uint16_t w = TFT_WHITE;
+    uint16_t b = TFT_BLACK;
+
+    // MQTT connected icon
+    static const uint16_t icon_mqtt1[] PROGMEM = {
+        b, w, w, w, w, w, w, w, w, w, b,
+        w, w, w, w, w, w, w, w, w, w, w,
+        w, w, b, w, b, b, w, b, b, b, w,
+        w, w, b, w, b, w, w, b, w, b, w,
+        w, w, b, w, b, w, w, b, w, b, w,
+        w, w, b, w, b, b, w, b, w, b, w,
+        w, w, b, w, w, b, w, b, w, b, w,
+        w, w, b, w, w, b, w, b, w, b, w, 
+        w, b, b, w, b, b, w, b, w, b, w,
+        w, w, w, w, w, w, w, w, w, w, w,
+        b, w, w, w, w, w, w, w, w, w, b
+    };
+
+    // MQTT not Connected Icon
+    static const uint16_t icon_mqtt2[] PROGMEM = {
+        b, g, g, g, g, g, g, g, g, g, b,
+        g, g, g, g, g, g, g, g, g, g, g,
+        g, g, b, g, b, b, g, b, b, b, g,
+        g, g, b, g, b, g, g, b, g, b, g,
+        g, g, b, g, b, g, g, b, g, b, g,
+        g, g, b, g, b, b, g, b, g, b, g,
+        g, g, b, g, g, b, g, b, g, b, g,
+        g, g, b, g, g, b, g, b, g, b, g, 
+        g, b, b, g, b, b, g, b, g, b, g,
+        g, g, g, g, g, g, g, g, g, g, g,
+        b, g, g, g, g, g, g, g, g, g, b
+    };
+
+    if(!connect_status)
+        tft_lib.pushImage(x_pos, y_pos, 11, 11, icon_mqtt2);
+    else
+        tft_lib.pushImage(x_pos, y_pos, 11, 11, icon_mqtt1);
 }

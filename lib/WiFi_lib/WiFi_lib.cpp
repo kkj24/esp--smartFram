@@ -13,3 +13,10 @@ bool WiFi_lib::stateWiFi() {
 
     return StateNow;
 }
+
+int WiFi_lib::WiFiSignal() {
+    int signal = WiFi.RSSI();
+    signal = constrain(map(signal, -100, -30, 1, 5), 1, 5);
+
+    return signal;
+}
