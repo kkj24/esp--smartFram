@@ -18,9 +18,11 @@ class TFT_Lib {
         void print(String text_input);  // Print Text with previous form
 
         void pBar(uint8_t input, uint8_t x_pos, uint8_t y_pos, uint8_t width, uint8_t height, uint16_t color1, uint16_t color2 = TFT_CYAN);  // Draw Progress bar Automate
-        void soft_pBar(uint8_t ID, uint8_t input, uint8_t x_pos, uint8_t y_pos, uint8_t width, uint8_t height, uint16_t color1, uint16_t color2 = TFT_CYAN, uint16_t anim = 10); // Draw progress bar with soft animation
+        void soft_pBar(uint8_t input, uint8_t no_bar, uint8_t x_pos, uint8_t y_pos, uint8_t width, uint8_t height, uint16_t color1, uint16_t color2 = TFT_CYAN); // Draw progress bar with soft animation
 
     private:
+        const static uint8_t index_max = 10; // Maximum Soft Bar 
+        uint8_t inputLast[index_max] = {0};
 
 };
 

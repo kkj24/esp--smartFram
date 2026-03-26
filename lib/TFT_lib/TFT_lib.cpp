@@ -1,7 +1,7 @@
 #include "TFT_lib.h"
 
-// Global  Variable
-unsigned long interval[] = {0, 0};
+// Global Variable
+uint16_t grey = tft_lib.color565(64, 64, 64);
 
 TFT_eSPI tft_lib;
 
@@ -46,11 +46,30 @@ void TFT_Lib::print(String text_input) {
 }
 
 // Draw Static Progress Bar
-
-void TFT_Lib::pBar(uint8_t input, uint8_t x_pos, uint8_t y_pos, uint8_t width, uint8_t height, uint16_t color1, uint16_t color2 = TFT_CYAN) {
-    unsigned long nowTime = millis();
-    int interval = 100;
-
-
+// Must Using Millis or Timer for prevent a Flicker
+void TFT_Lib::pBar(uint8_t input, uint8_t x_pos, uint8_t y_pos, uint8_t width, uint8_t height, uint16_t color1, uint16_t color2) {
+    input = constrain(map(input, 0, 100, 0, width - 2), 0, width - 2);
+    
+    tft_lib.drawRect(x_pos, y_pos, width, height, color1);
+    //tft_lib.fillScreen(TFT_BLACK);
+    tft_lib.fillRect(input + x_pos, y_pos + 1, width - input - 1, height - 2, grey);
+    tft_lib.fillRect(x_pos + 1, y_pos + 1, input, height - 2, color2);
 }
 
+// Draw Animate Progress Bar
+// Must using Millis/Micros or Timmer for Preventt  Flicker and Smoothy Animation
+void TFT_Lib::soft_pBar(uint8_t input, uint8_t no_bar, uint8_t x_pos, uint8_t y_pos, uint8_t width, uint8_t height, uint16_t color1, uint16_t color2) {
+    input = constrain(map(input, 0, 100, 0, width - 2), 0, width - 2);
+
+    if(inputLast[no_bar] == input)
+        inputLast[no_bar] = input;
+    else if(inputLast[no_bar] <= input)
+        inputLast[no_bar]++;
+    else if(inputLast[no_bar] >= input)
+        inputLast[no_bar]--;
+
+    tft_lib.drawRect(x_pos, y_pos, width, height, color1);  // Draw Progress ar Outline
+    //tft_lib.fillScreen(TFT_BLACK);
+    tft_lib.fillRect(inputLast[no_bar] + x_pos, y_pos + 1, width - inputLast[no_bar] - 1, height - 2, grey);    // Refresh Progress Bar
+    tft_lib.fillRect(x_pos + 1, y_pos + 1, inputLast[no_bar], height - 2, color2);      // Draw Progress Bar
+}
