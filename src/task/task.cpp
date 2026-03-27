@@ -71,38 +71,6 @@ void readMois() {
     }
 }
 
-timer t3 = {80, 0};
-
-// Just Examples
-void readButton(bool *button1, bool *button2) {
-    uint16_t tones = 2093;
-
-    bool bt1 = digitalRead(27);
-    bool bt2 = digitalRead(26);
-
-    unsigned long nowTime = millis();
-
-    static bool lastState1 = false;
-    static bool lastState2 = false;
-
-    if(nowTime - t3.last >= t3.interval) {
-        t3.last = nowTime;
-
-        if((!lastState1 && bt1) && (!lastState2 && bt2)) {
-            t3.interval = 350;
-            ledcWriteTone(0, tones);
-        } else if((!lastState1 && bt1) || (!lastState2 && bt2)){
-            t3.interval = 80;
-            ledcWriteTone(0, tones);
-        } else if((lastState1 == bt1) || (lastState2 == bt2)){
-            t3.interval = 80;
-            ledcWriteTone(0, 0);
-        }
-        
-        lastState1 = bt1;
-        lastState2 = bt2;
-
-        *button1 = bt1;
-        *button2 = bt2;
-    }
+void task() {
+    
 }

@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include <WebServer.h>
+
+extern WebServer web;
 
 class WiFi_lib {
     public:
@@ -10,7 +13,7 @@ class WiFi_lib {
 
         void setupWiFi();
 
-        void autoRec();
+        void autoRec(bool allow_restart);
         void dispRec();
         void monitDisp();
 
