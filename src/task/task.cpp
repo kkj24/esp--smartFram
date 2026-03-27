@@ -1,5 +1,6 @@
 #include "task/task.h"
 
+WiFi_lib wifi;
 TFT_Lib tft;
 Mois mois;      // Moisture object
 DHT_Lib dht;    // DHT object

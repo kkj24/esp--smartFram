@@ -7,9 +7,10 @@ void setup() {
   mois.begin();
   dht.DHTAutoset();
   tft.TFTBegin();
+
+  wifi.setupWiFi();
 }
 
 void loop() {
-  
-
+  wifi.autoRec(true);
 }

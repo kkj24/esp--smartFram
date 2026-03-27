@@ -1,8 +1,5 @@
 #include "TFT_lib.h"
 
-// Global Variable
-uint16_t grey = tft_lib.color565(64, 64, 64);
-
 TFT_eSPI tft_lib;
 
 TFT_Lib::TFT_Lib() {
@@ -169,38 +166,38 @@ void TFT_Lib::WiFiLevel_Icon(uint8_t x_pos, uint8_t y_pos, uint8_t signal_level)
 }
 
 void TFT_Lib::MQTTstate_Icon(uint8_t x_pos, uint8_t y_pos, bool connect_status) {
-    uint16_t g = tft_lib.color565(94, 94, 94);
-    uint16_t w = TFT_WHITE;
-    uint16_t b = TFT_BLACK;
+    uint16_t grey_icon = tft_lib.color565(94, 94, 94);
+    uint16_t white_icon = TFT_WHITE;
+    uint16_t black_icon = TFT_BLACK;
 
     // MQTT connected icon
     static const uint16_t icon_mqtt1[] PROGMEM = {
-        b, w, w, w, w, w, w, w, w, w, b,
-        w, w, w, w, w, w, w, w, w, w, w,
-        w, w, b, w, b, b, w, b, b, b, w,
-        w, w, b, w, b, w, w, b, w, b, w,
-        w, w, b, w, b, w, w, b, w, b, w,
-        w, w, b, w, b, b, w, b, w, b, w,
-        w, w, b, w, w, b, w, b, w, b, w,
-        w, w, b, w, w, b, w, b, w, b, w, 
-        w, b, b, w, b, b, w, b, w, b, w,
-        w, w, w, w, w, w, w, w, w, w, w,
-        b, w, w, w, w, w, w, w, w, w, b
+        black_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, black_icon,
+        white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon,
+        white_icon, white_icon, black_icon, white_icon, black_icon, black_icon, white_icon, black_icon, black_icon, black_icon, white_icon,
+        white_icon, white_icon, black_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, black_icon, white_icon,
+        white_icon, white_icon, black_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, black_icon, white_icon,
+        white_icon, white_icon, black_icon, white_icon, black_icon, black_icon, white_icon, black_icon, white_icon, black_icon, white_icon,
+        white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, black_icon, white_icon, black_icon, white_icon,
+        white_icon, white_icon, black_icon, white_icon, white_icon, black_icon, white_icon, black_icon, white_icon, black_icon, white_icon, 
+        white_icon, black_icon, black_icon, white_icon, black_icon, black_icon, white_icon, black_icon, white_icon, black_icon, white_icon,
+        white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon,
+        black_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, white_icon, black_icon
     };
 
     // MQTT not Connected Icon
     static const uint16_t icon_mqtt2[] PROGMEM = {
-        b, g, g, g, g, g, g, g, g, g, b,
-        g, g, g, g, g, g, g, g, g, g, g,
-        g, g, b, g, b, b, g, b, b, b, g,
-        g, g, b, g, b, g, g, b, g, b, g,
-        g, g, b, g, b, g, g, b, g, b, g,
-        g, g, b, g, b, b, g, b, g, b, g,
-        g, g, b, g, g, b, g, b, g, b, g,
-        g, g, b, g, g, b, g, b, g, b, g, 
-        g, b, b, g, b, b, g, b, g, b, g,
-        g, g, g, g, g, g, g, g, g, g, g,
-        b, g, g, g, g, g, g, g, g, g, b
+        black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, black_icon,
+        grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, black_icon, black_icon, grey_icon, black_icon, black_icon, black_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, black_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, black_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, black_icon, black_icon, grey_icon, black_icon, grey_icon, black_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, black_icon, grey_icon, black_icon, grey_icon,
+        grey_icon, grey_icon, black_icon, grey_icon, grey_icon, black_icon, grey_icon, black_icon, grey_icon, black_icon, grey_icon, 
+        grey_icon, black_icon, black_icon, grey_icon, black_icon, black_icon, grey_icon, black_icon, grey_icon, black_icon, grey_icon,
+        grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon,
+        black_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, grey_icon, black_icon
     };
 
     if(!connect_status)

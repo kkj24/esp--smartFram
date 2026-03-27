@@ -5,6 +5,9 @@
 #include "Mois_lib.h"
 #include "DHT_lib.h"
 #include "TFT_lib.h"
+#include "WiFi_lib.h"
+
+extern WiFi_lib wifi;
 
 extern TFT_Lib tft;
 

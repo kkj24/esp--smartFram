@@ -24,6 +24,8 @@ class TFT_Lib {
         void MQTTstate_Icon(uint8_t x_pos, uint8_t y_pos, bool connect_status);    // MQTT Connection Indicator
 
     private:
+        // Global Variable
+        uint16_t grey = tft_lib.color565(64, 64, 64);   // Grey Color Custom
         const static uint8_t index_max = 10; // Maximum Soft Bar 
         uint8_t inputLast[index_max] = {0};
 
