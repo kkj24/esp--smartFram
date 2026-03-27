@@ -5,6 +5,8 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
+#include "Login_FAST.h
+
 extern WebServer web;
 
 class WiFi_lib {
@@ -22,19 +24,17 @@ class WiFi_lib {
 
         void Login();
 
-        int setTimeOut = 50;
-
     private:
-        // STA Config
-        const char *HostName = "ESP--smartFarm--mainSensor";
-        char *STA_ssid = "test";
-        char *STA_pass = "test";
+        // STA Config [NetWork]
+        const char *HostName = "ESP--smartFarm--mainSensor";    // ConfigureWiFi Hostname
+        char *STA_ssid = "test";    // Set STA WiFi Name
+        char *STA_pass = "test--12345678";    // Set STA WiFi Password
 
-        // AP Config
-        const char *AP_ssid = "ESP--smartFarm--mainSensor[AP]";
-        const char *AP_pass = "ESP--12345678";
+        // AP Config [Login]
+        const char *AP_ssid = "ESP--smartFarm--mainSensor[AP-Login]"; // WiFi AP Name
+        const char *AP_pass = "ESP--12345678";  // WiFi AP Password
 
-        int Timeout = setTimeOut;       // Time Out of Attempting
+        int Timeout = 35;       // Time Out of Attempting
 
 };
 

@@ -61,7 +61,7 @@ void WiFi_lib::autoRec(bool allow_restart) {
             }
             
             // Logic of Attempt smaller than Time Out [Attempt < Time Out]
-            if(attempt <= Timeout) {
+            if(attempt < Timeout) {
             
                 count++;    // Counting
                 
@@ -85,6 +85,34 @@ void WiFi_lib::autoRec(bool allow_restart) {
             }
         }
     } 
+
+    // LED Built-In Indicator while Disconnect
+    if(nowState) {
+        // Timer Var
+        unsigned long now = micros();
+        static unsigned long last = 0;
+        int interval = 1000;
+
+        static uint8_t brightness = 0; // LED brightness
+
+        // Timer Run
+        if(now - last >= interval) {
+            last = now; // Update Timer
+
+            // Brightness Faded
+            brightness++;
+            if(brightness >= 255)
+                brightness = 0;
+
+            ledcWrite(0, brightness);
+        }
+    } else if(!nowState) {
+        if(lastState != nowState) {
+            lastState = nowState;   // Update State
+
+            ledcWrite(0, 0);
+        }
+    }
 }
 
 // WiFi Auto Set Func
@@ -93,7 +121,14 @@ void WiFi_lib::setupWiFi() {
     WiFi.mode(WIFI_AP_STA); // Set WiFi Mode [Dual Mode]
     WiFi.softAP(AP_ssid, AP_pass);  // Set AP mode Config
     
-    WiFi.begin(STA_ssid, STA_pass); // Set STA mode Config         
+    WiFi.begin(STA_ssid, STA_pass); // Set STA mode Config
+
+    // LED Built-In Indicator Setup
+    ledcSetup(0, 10000, 8);
+    ledcAttachPin(2, 0);
+
+    ledcSetup(2, 0, 8);
+    ledcAttachPin(14, 2);
 }
 
 // WiFi Auto Display Reconnect to TFT Disp
@@ -153,7 +188,7 @@ void WiFi_lib::monitDisp() {
                 Serial.print(F("Connecting"));
             }
 
-            if(attempt <= Timeout) {
+            if(attempt < Timeout) {
                 // Serial Monitor Progress 
                 Serial.print(F("."));
                 Mon_point++;    // Serial Monitor Counting
@@ -172,25 +207,59 @@ void WiFi_lib::monitDisp() {
             
             // Logic of Attempt greatest than Time Out [Attempt > Time Out]
             if(attempt >= Timeout) {
-                // Serial Monitor Reset ESP Time Out
-                Serial.print(F("\nAttempt: [Time Out]\n"));
-                Serial.print(F("ESP will be Restart [Yes / No]\n"));
+                static bool nowTask = false;    // Task now
+                static bool lastTask = false;   // Task last
+
+                nowTask = true; // Update Task Now
+
+                if(lastTask != nowTask) {
+                    lastTask = nowTask; // Update Task
+
+                    // Serial Monitor Reset ESP Time Out
+                    Serial.print(F("\nAttempt: [Time Out]\n"));
+                    Serial.print(F("ESP will be Restart [Yes / No]\n"));
+                }
 
                 // Restart ESP while User Allowing
                 if(esp_reset_reason() == ESP_RST_SW) {
+                    nowTask = false;    // Restart Task
                     attempt = 0;    // Restart Attempt Count
                 }
             }
+        }
         // while Connected
-        } else if(!nowState) {
-            if(lastState != nowState) {
-                lastState = nowState;   // Update State
-                
-                // Serial Monitor Succeed to Connect
-                Serial.print(F("\nSuccess to Connecting WiFi!"));
-                Serial.print(F("\n============[SSID: "));
-                Serial.print(WiFi.SSID());
-                Serial.print(F("]============\n"));
+    } else if(!nowState) {
+        if(lastState != nowState) {
+            lastState = nowState;   // Update State
+            
+            // Serial Monitor Succeed to Connect
+            Serial.print(F("\nSuccess to Connecting WiFi!"));
+            Serial.print(F("\n============[SSID: "));
+            Serial.print(WiFi.SSID());
+            Serial.print(F("]============\n"));
+        }
+
+        static bool toneState = true;
+
+        if(!nowState && toneState) {
+            unsigned long now = millis();
+            static unsigned long last = 0;
+            int interval = 100;
+    
+            static int tones = 0;
+            int buzzer_tone[3] = {659, 784, 1046};
+
+            if(now - last >= interval) {
+                    last = now;
+                    
+                    ledcWriteTone(2, buzzer_tone[tones]);
+
+                    tones++;
+                    
+                    if(tones > 3) {
+                        toneState = false;
+                        ledcWriteTone(2, 0);
+                    }
             }
         }
     }

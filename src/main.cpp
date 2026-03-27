@@ -12,5 +12,5 @@ void setup() {
 }
 
 void loop() {
-  wifi.autoRec(true);
+  wifi.autoRec(false);
 }
