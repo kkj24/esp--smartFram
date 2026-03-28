@@ -6,6 +6,9 @@
 #include "DHT_lib.h"
 #include "TFT_lib.h"
 #include "WiFi_lib.h"
+#include "EMQX_lib.h"
+
+extern EMQX emqx;
 
 extern WiFi_lib wifi;
 

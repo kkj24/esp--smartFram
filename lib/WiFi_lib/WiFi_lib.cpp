@@ -262,6 +262,8 @@ void WiFi_lib::monitDisp() {
             
             // Serial Monitor Succeed to Connect
             Serial.print(F("\nSuccess to Connecting WiFi!"));
+            Serial.print(F("\nIP: "));
+            Serial.print(WiFi.localIP());
             Serial.print(F("\n============[SSID: "));
             Serial.print(WiFi.SSID());
             Serial.print(F("]============\n"));

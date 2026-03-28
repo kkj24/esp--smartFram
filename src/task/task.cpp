@@ -1,5 +1,6 @@
 #include "task/task.h"
 
+EMQX emqx;
 WiFi_lib wifi;
 TFT_Lib tft;
 Mois mois;      // Moisture object

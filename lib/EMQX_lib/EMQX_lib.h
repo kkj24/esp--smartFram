@@ -5,6 +5,11 @@
 #include "WiFi_lib.h"
 #include <WiFiClient.h>
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
+
+extern WiFiClient espClient;
+extern PubSubClient mqtt_lib;
+extern JsonDocument doc;
 
 class EMQX {
     public:
@@ -12,8 +17,14 @@ class EMQX {
 
         void MQTTsetup();
 
+        bool MQTTState();
+
+        void run();
+
         void MQTTRec();
-        void MQTTRun();
+        void SerMon();
+
+        void sendData(uint8_t data, String data_key, String topic = "esp--smartFarm/sensor");
 
     private:
 
