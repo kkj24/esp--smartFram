@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dynamic MQTT Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/paho-mqtt/mqttws31.min.js"></script>
+
+<style>
+body { font-family: Arial; background:#0f172a; color:white; text-align:center; }
+h1 { margin:20px; }
+.card { background:#1e293b; padding:20px; border-radius:15px; margin:15px; display:inline-block; width:200px; }
+.big { font-size:36px; font-weight:bold; }
+canvas { background:white; border-radius:10px; margin-top:10px; }
+input, button { padding:8px; margin:5px; border-radius:8px; border:none; }
+button { cursor:pointer; }
+#dashboard { display:none; }
+</style>
+</head>
+<body>
+
+<h1>📊 Dynamic MQTT Dashboard</h1>
+
+<div id="loginCard" class="card">
+  <h3>MQTT Settings</h3>
+  <input type="text" id="broker" placeholder="Broker (e.g., broker.emqx.io)"><br>
+  <input type="number" id="port" placeholder="Port (e.g., 8084)"><br>
+  <input type="text" id="topic" placeholder="Topic (e.g., test/monitor)"><br>
+  <input type="text" id="user" placeholder="Username (optional)"><br>
+  <input type="password" id="pass" placeholder="Password (optional)"><br>
+  <button onclick="login()">Connect</button>
+</div>
+
+<div id="dashboard">
+  <p>Status: <span id="status">Disconnected</span></p>
+  <div id="cardsContainer"></div>
+</div>
+
+<script>
+let client;
+let charts = {}; // Object to store Chart.js instances
+
+function login(){
+  const broker = document.getElementById('broker').value;
+  const port = parseInt(document.getElementById('port').value);
+  const topic = document.getElementById('topic').value;
+  const user = document.getElementById('user').value;
+  const pass = document.getElementById('pass').value;
+
+  if(!broker || !port || !topic){ alert("Isi broker, port, topic"); return; }
+
+  document.getElementById('loginCard').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+
+  const clientID = "client_" + Math.random().toString(16).substr(2,8);
+  client = new Paho.MQTT.Client(broker, port, clientID);
+
+  client.onConnectionLost = ()=>{document.getElementById("status").innerText="Disconnected ❌";}
+  client.onMessageArrived = (message)=>{
+    try{
+      const data = JSON.parse(message.payloadString);
+      for(const key in data){
+        // Create card + chart if doesn't exist
+        if(!charts[key]){
+          createCard(key);
+          charts[key] = createChart(key);
+        }
+        // Update value
+        document.getElementById(key + "_value").innerText = data[key];
+        // Update chart
+        const now = new Date().toLocaleTimeString();
+        let ch = charts[key];
+        ch.data.labels.push(now);
+        ch.data.datasets[0].data.push(data[key]);
+        if(ch.data.labels.length>10){
+          ch.data.labels.shift();
+          ch.data.datasets[0].data.shift();
+        }
+        ch.update();
+      }
+    } catch(e){
+      console.log("Data bukan JSON:", message.payloadString);
+    }
+  };
+
+  client.connect({
+    useSSL:true,
+    userName:user||undefined,
+    password:pass||undefined,
+    onSuccess: ()=>{
+      document.getElementById("status").innerText="Connected ✅";
+      client.subscribe(topic);
+    },
+    onFailure: ()=>{document.getElementById("status").innerText="Failed ❌";}
+  });
+}
+
+// Function to create card dynamically
+function createCard(label){
+  const container = document.getElementById('cardsContainer');
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `<h3>${label}</h3>
+                    <div class="big" id="${label}_value">0</div>
+                    <canvas id="${label}_chart" width="200" height="100"></canvas>`;
+  container.appendChild(card);
+}
+
+// Function to create chart for a key
+function createChart(label){
+  const ctx = document.getElementById(label + '_chart');
+  return new Chart(ctx, {
+    type:'line',
+    data:{labels:[], datasets:[{label:label, data:[], borderWidth:2, tension:0.3}]},
+    options:{scales:{y:{beginAtZero:true}}}
+  });
+}
+</script>
+
+</body>
+</html>

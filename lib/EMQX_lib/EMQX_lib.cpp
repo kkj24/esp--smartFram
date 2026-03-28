@@ -13,6 +13,7 @@ EMQX::EMQX() {
     // No Once Function
 };
 
+// Run EMQX Func
 void EMQX::run() {
     mqtt_lib.loop();
 }
@@ -79,9 +80,16 @@ void EMQX::MQTTRec() {
             // Timer Var
             unsigned long now = millis();
             static unsigned long last = 0;
-            uint8_t interval = 100;
+            uint8_t interval = 70;
 
-            const uint16_t buz_tones[] = {1318, 1568, 0, 1975, 2093};    // Tones List
+            //tone ref: D5 - D5, D6, A5, #G5, G5, F5, D5, F5, G5
+            uint16_t _D5 = 587;
+            uint16_t _F5 = 698;
+            uint16_t _G5 = 784;
+            uint16_t _GS5 = 830;
+            uint16_t _A5 = 880;
+            uint16_t _D6 = 1174;
+            const uint16_t buz_tones[] = {_D5, 0, _D5, 0, _D6, 0, 0, _A5, 0, 0, 0, _GS5, 0, 0, _G5, 0, 0, _F5, 0, 0, _D5, 0, _F5, 0, _G5};    // Tones List
             static uint8_t prog_tones = 0;  // Progressive Tone
 
             // Timer Run
@@ -93,7 +101,7 @@ void EMQX::MQTTRec() {
                 prog_tones++;
 
                 // Reset Tone
-                if(prog_tones > 5) {
+                if(prog_tones > 25 ) {
                     prog_tones = 0;
                     ledcWriteTone(2, 0);
                     state_tone = true;
@@ -129,18 +137,24 @@ void EMQX::MQTTRec() {
     }
 }
 
-// Send Data to MQTT Server with JSON Form
-void EMQX::sendData(uint8_t data, String data_key, String topic) {
+// Save Data with JSON Form
+char dataSend[200];
+void EMQX::saveData(uint8_t data, String data_key) {
     if(!mqtt_lib.connected())
         return;
 
-    char dataSend[200];
-
-    doc.clear();
     doc[data_key] = data;
 
     serializeJson(doc, dataSend, sizeof(dataSend));
+}
 
+// Clear JSON Data to Prevent Over Flow
+void EMQX::clearData() {
+    doc.clear();
+}
+
+// Publish All Data into MQTT Server
+void EMQX::sendData(String topic) {
     mqtt_lib.publish(topic.c_str(), dataSend);
 }
 

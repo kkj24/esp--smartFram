@@ -1,63 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>FAST Login DashBoard</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; background-color: #eef2f3; margin: 0; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; }
-        h2 { color: #333; margin-top: 0; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; }
-        input:focus { border-color: #4CAF50; }
-        button { width: 100%; background-color: #4CAF50; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        button:hover { background-color: #45a049; }
-        #status { margin-top: 15px; padding: 10px; border-radius: 5px; text-align: center; display: none; font-size: 14px; }
-        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Speed Trainer</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #111;
+  color: #fff;
+}
+.container {
+  margin-top: 40px;
+}
+button, input {
+  padding: 10px;
+  margin: 8px;
+  font-size: 16px;
+}
+#question {
+  font-size: 36px;
+  margin: 20px;
+}
+#feedback {
+  font-size: 20px;
+  height: 24px;
+}
+.correct { color: #00ff88; }
+.wrong { color: #ff4d4d; }
+#history {
+  margin-top: 20px;
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+#level {
+  font-size: 18px;
+  margin-top: 10px;
+  color: #ffd700;
+}
+</style>
 </head>
 <body>
-    <div class="card">
-        <h2>FAST Login DashBoard</h2>
-        <input type="text" id="ssid" placeholder="Nama WiFi (SSID)">
-        <input type="password" id="pass" placeholder="Password (PASS)">
-        <button onclick="sendData()">HUBUNGKAN</button>
-        <div id="status"></div>
-    </div>
+<div class="container">
+  <h1>⚡ Math Speed Trainer</h1>
+  <label>Timer (seconds): </label>
+  <input type="number" id="timeInput" value="30">
+  <br>
+  <button onclick="startGame()">Start Game</button>
+  <h2 id="timer">Time: 0</h2>
+  <div id="level">Level: 1</div>
+  <div id="question">Press Start</div>
+  <div id="feedback"></div>
+  <input type="number" id="answer" placeholder="Your answer" autofocus>
+  <h2 id="score">Score: 0</h2>
+  <div id="history"></div>
+</div>
 
-    <script>
-        function sendData() {
-            var s = document.getElementById("ssid").value;
-            var p = document.getElementById("pass").value;
-            var statusDiv = document.getElementById("status");
+<script>
+let score = 0;
+let timeLeft = 0;
+let currentAnswer = 0;
+let currentQuestionText = "";
+let timerInterval;
 
-            if (!s) {
-                showStatus("SSID tidak boleh kosong!", "error");
-                return;
-            }
+let level = 1;
+let correctStreak = 0;
 
-            showStatus("Mengirim data...", "");
+function generateNumbers() {
+  // level scaling
+  if (level === 1) return [1 + Math.floor(Math.random()*5), 1 + Math.floor(Math.random()*5)];
+  if (level === 2) return [1 + Math.floor(Math.random()*7), 1 + Math.floor(Math.random()*7)];
+  if (level === 3) return [1 + Math.floor(Math.random()*9), 1 + Math.floor(Math.random()*9)];
+  if (level >= 4) return [2 + Math.floor(Math.random()*10), 2 + Math.floor(Math.random()*10)];
+}
 
-            // Mengirim data menggunakan AJAX fetch
-            fetch(`/get?ssid=${encodeURIComponent(s)}&password=${encodeURIComponent(p)}`)
-            .then(response => {
-                if (response.ok) {
-                    showStatus("Berhasil! ESP32 mencoba terhubung...", "success");
-                } else {
-                    showStatus("Gagal mengirim data.", "error");
-                }
-            })
-            .catch(err => {
-                showStatus("Terjadi kesalahan koneksi.", "error");
-            });
-        }
+function randomQuestion() {
+  let [a, b] = generateNumbers();
+  currentAnswer = a * b;
+  currentQuestionText = `${a} × ${b}`;
+  document.getElementById("question").innerText = currentQuestionText;
+}
 
-        function showStatus(msg, type) {
-            var statusDiv = document.getElementById("status");
-            statusDiv.innerText = msg;
-            statusDiv.style.display = "block";
-            statusDiv.className = type;
-        }
-    </script>
+function startGame() {
+  score = 0;
+  level = 1;
+  correctStreak = 0;
+  timeLeft = parseInt(document.getElementById("timeInput").value);
+
+  document.getElementById("score").innerText = "Score: 0";
+  document.getElementById("history").innerHTML = "";
+  document.getElementById("feedback").innerText = "";
+  document.getElementById("level").innerText = "Level: 1";
+
+  randomQuestion();
+  document.getElementById("answer").focus();
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").innerText = "Time: " + timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById("question").innerText = "Game Over!";
+      document.getElementById("feedback").innerText = "";
+    }
+  }, 1000);
+}
+
+function checkLevelUp() {
+  if (correctStreak >= 5) {
+    level++;
+    correctStreak = 0;
+    document.getElementById("level").innerText = "Level: " + level;
+  }
+}
+
+function submitAnswer() {
+  if (timeLeft <= 0) return;
+
+  let userAnswer = document.getElementById("answer").value;
+  let feedback = document.getElementById("feedback");
+  let history = document.getElementById("history");
+
+  if (parseInt(userAnswer) === currentAnswer) {
+    score++;
+    correctStreak++;
+    timeLeft += 5;
+
+    feedback.innerText = `+5s ✔ Correct (Streak: ${correctStreak})`;
+    feedback.className = "correct";
+
+    history.innerHTML = `<div class="correct">${currentQuestionText} = ${userAnswer}</div>` + history.innerHTML;
+
+    checkLevelUp();
+  } else {
+    correctStreak = 0;
+    timeLeft -= 3;
+
+    feedback.innerText = `-3s ✖ Wrong (Answer: ${currentAnswer})`;
+    feedback.className = "wrong";
+
+    history.innerHTML = `<div class="wrong">${currentQuestionText} = ${userAnswer} (✔ ${currentAnswer})</div>` + history.innerHTML;
+  }
+
+  document.getElementById("score").innerText = "Score: " + score;
+  document.getElementById("answer").value = "";
+  document.getElementById("timer").innerText = "Time: " + timeLeft;
+
+  if (timeLeft <= 0) {
+    clearInterval(timerInterval);
+    document.getElementById("question").innerText = "Game Over!";
+    return;
+  }
+
+  randomQuestion();
+}
+
+// ENTER key support
+document.getElementById("answer").addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+    submitAnswer();
+  }
+});
+</script>
 </body>
 </html>

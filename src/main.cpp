@@ -18,12 +18,5 @@ void loop() {
 
   emqx.run();
 
-  unsigned long now = millis();
-  static unsigned long last = 0;
-  int interval = 5000;
-
-  if(now - last >= interval) {
-    last = now;
-    emqx.sendData(90, "test:"); 
-  }
+  autoRun();
 }
