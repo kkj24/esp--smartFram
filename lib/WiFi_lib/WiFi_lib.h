@@ -3,11 +3,8 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
-#include <WebServer.h>
 
-#include "Login_FAST.h
-
-extern WebServer web;
+#include "Login_FAST.h"
 
 class WiFi_lib {
     public:
@@ -27,15 +24,16 @@ class WiFi_lib {
     private:
         // STA Config [NetWork]
         const char *HostName = "ESP--smartFarm--mainSensor";    // ConfigureWiFi Hostname
-        char *STA_ssid = "test";    // Set STA WiFi Name
-        char *STA_pass = "test--12345678";    // Set STA WiFi Password
-
+        
         // AP Config [Login]
         const char *AP_ssid = "ESP--smartFarm--mainSensor[AP-Login]"; // WiFi AP Name
         const char *AP_pass = "ESP--12345678";  // WiFi AP Password
-
+        
         int Timeout = 35;       // Time Out of Attempting
-
+        
 };
+    
+extern String STA_ssid;    // Set STA WiFi Name
+extern String STA_pass;    // Set STA WiFi Password
 
 #endif

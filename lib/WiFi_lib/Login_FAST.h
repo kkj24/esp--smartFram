@@ -2,6 +2,15 @@
 #define WIFI_DASHBOARD_LOGIN_HTML_H
 
 #include <Arduino.h>
+#include <WebServer.h>
+#include <Preferences.h>
+
+extern Preferences pref;
+
+extern WebServer web;
+
+extern String pref_ssid;
+extern String pref_pass;
 
 // HTML for Login Dashboard
 const char HTML_dashboard[] PROGMEM = R"==(
@@ -46,7 +55,7 @@ const char HTML_dashboard[] PROGMEM = R"==(
             showStatus("Mengirim data...", "");
 
             // Mengirim data menggunakan AJAX fetch
-            fetch(`/get?ssid=${encodeURIComponent(s)}&password=${encodeURIComponent(p)}`)
+            fetch(`/save?s=${encodeURIComponent(s)}&p=${encodeURIComponent(p)}`)
             .then(response => {
                 if (response.ok) {
                     showStatus("Berhasil! ESP32 mencoba terhubung...", "success");
@@ -69,5 +78,9 @@ const char HTML_dashboard[] PROGMEM = R"==(
 </body>
 </html>
 )==";
+
+void handleURL();
+void handleSave();
+void getConf();
 
 #endif

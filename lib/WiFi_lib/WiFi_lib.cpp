@@ -1,6 +1,7 @@
 #include "WiFi_lib.h"
 
-WebServer web;
+String STA_ssid = "";
+String STA_pass = "";
 
 WiFi_lib::WiFi_lib() {};
 
@@ -28,63 +29,31 @@ int WiFi_lib::WiFiSignal() {
 // WiFi Auto Reconnect Func
 void WiFi_lib::autoRec(bool allow_restart) {
     bool nowState = stateWiFi();
-
     static bool lastState = false;
+
+    // Handling HTML Server Web
+    web.handleClient();
 
     // Monitoring Serial Display Func
     monitDisp();
 
+    // Update Conf
+    getConf();
+
+    // WiFi Auto Reconnect
     if(nowState) {
-        // Variable of Timer
+        // Timer Var
         unsigned long now = millis();
         static unsigned long last = 0;
-        int interval = 1000;
+        int interval = 1500;
 
-        // Counting Synchronize Var
-        static int attempt = 0;        // Var of Attempt Counting
-
-        static int count = 0;   // WiFi Count
-
-        // Timer
+        // Timer of WiFi Reconnect
         if(now - last >= interval) {
             last = now; // Update Timer
 
-            // Init One Times
-            if(lastState != nowState) {
-                lastState = nowState; // Update State;
-
-                WiFi.setHostname(HostName); // Configure HostName WiFi
-                WiFi.mode(WIFI_AP_STA); // Set WiFi Mode [Dual Mode]
-                WiFi.softAP(AP_ssid, AP_pass);  // Set AP mode Config
-
-                WiFi.begin(STA_ssid, STA_pass); // Set STA mode Config    
-            }
-            
-            // Logic of Attempt smaller than Time Out [Attempt < Time Out]
-            if(attempt < Timeout) {
-            
-                count++;    // Counting
-                
-                // try to Connecting WiFi
-                WiFi.begin(STA_ssid, STA_pass); // Set STA mode Config
-
-                // Count Attempt and Reset WiFi Counter
-                if(count >= 5) {
-                    attempt++;  // Attempt Counting
-                    count = 0;  // Reset Serial Monitor Count
-                }
-            }
-            
-            // Logic of Attempt greatest than Time Out [Attempt > Time Out]
-            if(attempt >= Timeout) {
-                // Restart ESP while User Allowing
-                if(allow_restart) {
-                    attempt = 0;    // Restart Attempt Count
-                    ESP.restart();  // Reset ESP
-                }
-            }
+            WiFi.begin(STA_ssid.c_str(), STA_pass.c_str()); // Reconnect
         }
-    } 
+    }
 
     // LED Built-In Indicator while Disconnect
     if(nowState) {
@@ -93,24 +62,77 @@ void WiFi_lib::autoRec(bool allow_restart) {
         static unsigned long last = 0;
         int interval = 1000;
 
-        static uint8_t brightness = 0; // LED brightness
+        static uint8_t brightness = 0;  // Brighntess
 
-        // Timer Run
+        // Timer of LED Indicator
         if(now - last >= interval) {
-            last = now; // Update Timer
+            last = now;
 
-            // Brightness Faded
+            // LED Indicator Fade-Off
             brightness++;
             if(brightness >= 255)
                 brightness = 0;
 
             ledcWrite(0, brightness);
         }
-    } else if(!nowState) {
-        if(lastState != nowState) {
-            lastState = nowState;   // Update State
+    // LED While Connected
+    } else {
+        static bool lastLedState = true;   // LED last State
 
-            ledcWrite(0, 0);
+        if(lastLedState != nowState) {
+            lastLedState = nowState;    // Update State
+
+            ledcWrite(0, 0);    // Reset LED Indicator PWM
+        }
+    }
+        
+    // Tone While Disconnected [Enter: Mode] and Connected
+    if(nowState || !nowState) {
+        // Run Once Time at Idle Mode
+        static bool stateTone = true;
+
+        if(stateTone && nowState) {
+            // Timer Var
+            unsigned long now = millis();
+            static unsigned long last = 0;
+            int interval = 100;
+
+            static int prog_tone = 0;   // Progressive Tone
+            const int buz_tone[] = {392, 329, 261}; // Tone of Buzzer
+
+            // Timer of Buzzer Tone
+            if(now - last >= interval) {
+                last = now; // Update Timer
+
+                // Update Tone
+                ledcWriteTone(2, buz_tone[prog_tone]);
+                prog_tone++;
+                if(prog_tone > 3) {
+                    stateTone = false;
+                    ledcWriteTone(2, 0);
+                }
+            }
+        } 
+
+        // Buzzer Tone While WiFi out Idle Mode
+        if(!nowState && !stateTone) {
+            // Timer Var
+            unsigned long now = millis();
+            static unsigned long last = 0;
+            int interval = 100;
+
+            static int prog_tone = 0;   // Progressive Tone
+            const int buz_tone[] = {261, 329, 392}; // Tone of Buzzer
+
+            if(now - last >= interval) {
+                last = now;
+
+                prog_tone++;
+                if(prog_tone > 3) {
+                    prog_tone = 0;
+                    stateTone = true;
+                }
+            }
         }
     }
 }
@@ -121,14 +143,20 @@ void WiFi_lib::setupWiFi() {
     WiFi.mode(WIFI_AP_STA); // Set WiFi Mode [Dual Mode]
     WiFi.softAP(AP_ssid, AP_pass);  // Set AP mode Config
     
-    WiFi.begin(STA_ssid, STA_pass); // Set STA mode Config
+    WiFi.begin(STA_ssid.c_str(), STA_pass.c_str()); // Set STA mode Config
 
     // LED Built-In Indicator Setup
     ledcSetup(0, 10000, 8);
     ledcAttachPin(2, 0);
 
+    // Buzzer Indicator Setup
     ledcSetup(2, 0, 8);
     ledcAttachPin(14, 2);
+
+    web.on("/", handleURL);      // Halaman utama
+    web.on("/save", handleSave);  // Endpoint penangkap data
+  
+    web.begin();
 }
 
 // WiFi Auto Display Reconnect to TFT Disp
