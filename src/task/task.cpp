@@ -20,6 +20,7 @@ uint8_t temp = 0;
 // pH Data
 uint8_t pH_soil = 0;
 
+// Read Data Func
 void readData() {
     unsigned long now = millis();
     static unsigned long last = 0;
@@ -43,6 +44,7 @@ void readData() {
     }
 }
 
+// Send Data
 void send() {
     unsigned long now = millis();
     static unsigned long last = 0;
@@ -68,8 +70,35 @@ void send() {
     }
 }
 
+// Show Title on TFT Display
+void title(uint8_t tab) {
+    enum tab {
+        TAB1,
+        TAB2,
+        TAB3
+    };
+}
 
+// Tab 1 [Show Data Graph]
+void tab1(bool show) {
+    // While True
+    if(show) {
+        // Timer Var
+        unsigned long now = millis();
+        static unsigned long last = 0;
+        int interval = 50;
 
+        // Timer Run
+        if(now - last >= interval) {
+            last = now; // Timer Update
+
+            tft.soft_pBar(moisAv, 0, );
+        }
+    }
+}
+
+// ===========================
+// Automate Set
 void autoSet() {
     wifi.setupWiFi();
     emqx.MQTTsetup();
@@ -78,6 +107,8 @@ void autoSet() {
     dht.DHTAutoset();
 }
 
+// ===========================
+// Auto Run Func
 void autoRun() {
     readData(); // Read Data
     send();
