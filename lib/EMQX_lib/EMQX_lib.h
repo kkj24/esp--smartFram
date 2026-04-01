@@ -24,7 +24,7 @@ class EMQX {
         void MQTTRec();
         void SerMon();
 
-        void saveData(uint8_t data, String data_key);
+        void saveData(int16_t data, String data_key);
         void clearData();
         void sendData(String topic = "esp32--smartFarm/main-sensor[FNC]");
 

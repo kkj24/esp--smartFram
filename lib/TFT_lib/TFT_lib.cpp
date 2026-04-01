@@ -43,6 +43,7 @@ void TFT_Lib::print(String text_input) {
     tft_lib.print(text_input);
 }
 
+// ==================================================
 // Draw Static Progress Bar
 // Must Using Millis or Timer for prevent a Flicker
 void TFT_Lib::pBar(uint8_t input, uint8_t x_pos, uint8_t y_pos, uint8_t width, uint8_t height, uint16_t color1, uint16_t color2) {
@@ -54,6 +55,7 @@ void TFT_Lib::pBar(uint8_t input, uint8_t x_pos, uint8_t y_pos, uint8_t width, u
     tft_lib.fillRect(x_pos + 1, y_pos + 1, input, height - 2, color2);
 }
 
+// ===================================================
 // Draw Animate Progress Bar
 // Must using Millis/Micros or Timmer for Preventt  Flicker and Smoothy Animation
 void TFT_Lib::soft_pBar(uint8_t input, uint8_t no_bar, uint8_t x_pos, uint8_t y_pos, uint8_t width, uint8_t height, uint16_t color1, uint16_t color2) {
@@ -68,10 +70,11 @@ void TFT_Lib::soft_pBar(uint8_t input, uint8_t no_bar, uint8_t x_pos, uint8_t y_
 
     tft_lib.drawRect(x_pos, y_pos, width, height, color1);  // Draw Progress ar Outline
     //tft_lib.fillScreen(TFT_BLACK);
-    tft_lib.fillRect(inputLast[no_bar] + x_pos, y_pos + 1, width - inputLast[no_bar] - 1, height - 2, grey);    // Refresh Progress Bar
+    tft_lib.fillRect((inputLast[no_bar] + 1) + x_pos, y_pos + 1, width - (inputLast[no_bar] + 2), height - 2, grey);    // Refresh Progress Bar
     tft_lib.fillRect(x_pos + 1, y_pos + 1, inputLast[no_bar], height - 2, color2);      // Draw Progress Bar
 }
 
+// ===============================================================================
 // Draw WiFi Level Icon  Progress
 void TFT_Lib::WiFiLevel_Icon(uint8_t x_pos, uint8_t y_pos, uint8_t signal_level) {
     uint16_t grey_icon = tft_lib.color565(94, 94, 94);
@@ -165,6 +168,8 @@ void TFT_Lib::WiFiLevel_Icon(uint8_t x_pos, uint8_t y_pos, uint8_t signal_level)
         tft_lib.pushImage(x_pos, y_pos, 11, 11, wifi_1);    // No Signal
 }
 
+// ==============================================================================
+// Draw MQTT Icon State
 void TFT_Lib::MQTTstate_Icon(uint8_t x_pos, uint8_t y_pos, bool connect_status) {
     uint16_t grey_icon = tft_lib.color565(94, 94, 94);
     uint16_t white_icon = TFT_WHITE;

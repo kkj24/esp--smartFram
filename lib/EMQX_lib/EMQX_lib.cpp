@@ -139,7 +139,7 @@ void EMQX::MQTTRec() {
 
 // Save Data with JSON Form
 char dataSend[200];
-void EMQX::saveData(uint8_t data, String data_key) {
+void EMQX::saveData(int16_t data, String data_key) {
     if(!mqtt_lib.connected())
         return;
 

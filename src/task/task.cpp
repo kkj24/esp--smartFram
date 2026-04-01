@@ -5,6 +5,7 @@ WiFi_lib wifi;
 TFT_Lib tft;
 Mois mois;      // Moisture object
 DHT_Lib dht;    // DHT object
+pH_lib pH;
 
 // Mois Data from Library Mois
 uint8_t moisAv = 0;
@@ -41,6 +42,8 @@ void readData() {
         // Read DHT Sensor
         dht.readHum(&hum);
         dht.readTemp(&temp);
+
+        pH_soil = pH.pH_raw();
     }
 }
 
@@ -66,35 +69,114 @@ void send() {
         emqx.saveData(hum, "Hum:");
         emqx.saveData(temp, "Temp:");
 
+        emqx.saveData(pH_soil, "pH:");
+
         emqx.sendData();
     }
 }
 
-// Show Title on TFT Display
-void title(uint8_t tab) {
+// ==============================
+// TFT title show
+void title() {
+    static bool stateLast = false;
+    bool nowState = emqx.MQTTState();
+
+    if(stateLast != nowState) {
+        stateLast = nowState;
+
+        tft_lib.fillRect(0, 0, 128, 30, tft_lib.color565(64, 64, 64));
+        tft_lib.drawFastHLine(0, 30, 128, TFT_WHITE);
+        tft.printF(F("FNC Comp"), 15, 2, TFT_YELLOW, 2);
+        tft.printF(F("Main Sensor TFT"), 16, 20, TFT_GREENYELLOW);
+    }
+}
+
+void titleTab(uint8_t tab) {
+    enum tabTitle {
+        TAB1,
+        TAB2,
+        TAB3
+    };
+
+    switch(tab) {
+        // Title tab1
+        case TAB1:
+            tft.printF(F("Tab1"), 5, 32, TFT_WHITE);
+            tft.printF(F("Tab2"), 50, 32, tft_lib.color565(64, 64, 64));
+            tft.printF(F("Tab3"), 99, 32, tft_lib.color565(64, 64, 64));
+        break;
+
+        // Title tab2
+        case TAB2:
+            tft.printF(F("Tab1"), 5, 32, tft_lib.color565(64, 64, 64));
+            tft.printF(F("Tab2"), 50, 32, TFT_WHITE);
+            tft.printF(F("Tab3"), 99, 32, tft_lib.color565(64, 64, 64));
+        break;
+
+        // Title tab3
+        case TAB3:
+            tft.printF(F("Tab1"), 5, 32, tft_lib.color565(64, 64, 64));
+            tft.printF(F("Tab2"), 50, 32, tft_lib.color565(64, 64, 64));
+            tft.printF(F("Tab3"), 99, 32, TFT_WHITE);
+        break;
+    }
+}
+
+// ==============================
+// TFT tab1 draw proggress bar
+void drawTab1_progressVar() {
+    unsigned long now = millis();
+    static unsigned long last = 0;
+    uint16_t interval = 10;
+    title();
+
+    if(now - last >= interval) {
+        last = now;
+
+        //tft.printF(F("Mois1: "), )
+        //tft.soft_pBar(mois1, 0, 5, 20, 50, 5, TFT_WHITE);
+    }
+}
+
+// ==============================
+// TFT tab1 Show Func
+void tab1() {
+    drawTab1_progressVar();
+
+}
+
+// ==============================
+// Tab 1 [Show Data Graph]
+void tabShow(uint8_t show_tab) {
+    // Tab State
     enum tab {
         TAB1,
         TAB2,
         TAB3
     };
+
+    switch(show_tab) {
+        // Show Tab 1
+        case TAB1:
+
+        break;
+
+        // Show Tab 2
+        case TAB2:
+
+        break;
+
+        // Show Tab 3
+        case TAB3:
+
+        break;
+    }
 }
 
-// Tab 1 [Show Data Graph]
-void tab1(bool show) {
-    // While True
-    if(show) {
-        // Timer Var
-        unsigned long now = millis();
-        static unsigned long last = 0;
-        int interval = 50;
+// ==============================
+// Show TFT Display
+void ShowDisp() {
 
-        // Timer Run
-        if(now - last >= interval) {
-            last = now; // Timer Update
-
-            tft.soft_pBar(moisAv, 0, );
-        }
-    }
 }
 
 // ===========================
@@ -105,6 +187,7 @@ void autoSet() {
     tft.TFTBegin();
     mois.begin();
     dht.DHTAutoset();
+    pH.setupLib();
 }
 
 // ===========================
@@ -112,4 +195,28 @@ void autoSet() {
 void autoRun() {
     readData(); // Read Data
     send();
+    tab1(); // Test
+
+    bool bt1 = digitalRead(27);
+    bool bt2 = digitalRead(26);
+    static bool stateLast1 = false;
+    static bool stateLast2 = false;
+
+    static int8_t tab = 0;
+
+    if(!stateLast1 && bt1)
+        tab++;
+
+    if(!stateLast2 && bt2)
+        tab--;
+
+    stateLast1 = bt1;
+    stateLast2 = bt2;
+
+    if(tab >= 3)
+        tab = 0;
+    if(tab <= 0)
+        tab = 3;
+
+    titleTab(tab);
 }

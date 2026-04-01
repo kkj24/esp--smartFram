@@ -11,7 +11,7 @@
 #endif
 
 #ifndef DHT_TYPE
-#define DHT_TYPE DHT11
+#define DHT_TYPE DHT22
 #endif
 
 extern DHT dht_lib;

@@ -1,6 +1,6 @@
 #include "Mois_lib.h"
 
-Adafruit_ADS1115 ads_lib;
+Adafruit_ADS1115 ads_lib1;
 
 Mois::Mois() {
 };
@@ -8,14 +8,14 @@ Mois::Mois() {
 // Begin Func for Mois Lib
 void Mois::begin() {
     Wire.begin();
-    ads_lib.begin(ADDR);
-    ads_lib.setDataRate(RATE_ADS1115_128SPS);
-    ads_lib.setGain(GAIN);
+    ads_lib1.begin(ADDR1);
+    ads_lib1.setDataRate(RATE_ADS1115_128SPS);
+    ads_lib1.setGain(GAIN1);
 }
 
 // Read Mois Sensor
 void Mois::readMois(uint8_t ch, uint8_t *getRead) {
-    int16_t rawRead = ads_lib.readADC_SingleEnded(ch);
+    int16_t rawRead = ads_lib1.readADC_SingleEnded(ch);
     uint8_t data = constrain(map(rawRead, -3800, 23450, 100, 0), 0, 100);
     *getRead = data;
 }
@@ -34,13 +34,13 @@ void Mois::getAv(uint8_t *getAv, uint8_t Mois1, uint8_t Mois2, uint8_t Mois3, ui
 
 // Read Mois Sensor Directly
 int Mois::liveGetRead(uint8_t ch) {
-    int16_t rawRead = ads_lib.readADC_SingleEnded(ch);
+    int16_t rawRead = ads_lib1.readADC_SingleEnded(ch);
     uint8_t readLive = constrain(map(rawRead, -3800, 23450, 100, 0), 0, 100);
     return readLive;
 }
 
 // Rea Mois Sensor and returned Raw Data
 int Mois::getRawData(uint8_t ch) {
-    int16_t rawData = ads_lib.readADC_SingleEnded(ch);
+    int16_t rawData = ads_lib1.readADC_SingleEnded(ch);
     return rawData;
 }
