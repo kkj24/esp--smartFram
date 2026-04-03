@@ -16,7 +16,7 @@ void Mois::begin() {
 // Read Mois Sensor
 void Mois::readMois(uint8_t ch, uint8_t *getRead) {
     int16_t rawRead = ads_lib1.readADC_SingleEnded(ch);
-    uint8_t data = constrain(map(rawRead, -3800, 23450, 100, 0), 0, 100);
+    uint8_t data = constrain(map(rawRead, min_range, max_range, 100, 0), 0, 100);
     *getRead = data;
 }
 
@@ -35,7 +35,7 @@ void Mois::getAv(uint8_t *getAv, uint8_t Mois1, uint8_t Mois2, uint8_t Mois3, ui
 // Read Mois Sensor Directly
 int Mois::liveGetRead(uint8_t ch) {
     int16_t rawRead = ads_lib1.readADC_SingleEnded(ch);
-    uint8_t readLive = constrain(map(rawRead, -3800, 23450, 100, 0), 0, 100);
+    uint8_t readLive = constrain(map(rawRead, min_range, max_range, 100, 0), 0, 100);
     return readLive;
 }
 

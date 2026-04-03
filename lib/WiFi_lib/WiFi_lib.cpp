@@ -21,7 +21,7 @@ bool WiFi_lib::stateWiFi() {
 // WiFi Signal Strength Level[Range: 1-5 -- {low-strong}]
 int WiFi_lib::WiFiSignal() {
     int signal = WiFi.RSSI();
-    signal = constrain(map(signal, -100, -30, 1, 5), 1, 5);
+    signal = constrain(map(signal, -85, -55, 1, 5), 1, 5);
 
     return signal;
 }

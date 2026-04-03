@@ -28,8 +28,8 @@ class Mois {
         void getAv(uint8_t *getAv, uint8_t Mois1, uint8_t Mois2 = -1, uint8_t Mois3 = -1, uint8_t Mois4 = -1);  // Get Average of Mois
         
     private:
-        
-
+        int16_t min_range = 10;
+        int16_t max_range = 28030;
 };
 
 #endif
