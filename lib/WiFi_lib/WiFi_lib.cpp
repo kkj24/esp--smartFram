@@ -77,7 +77,7 @@ void WiFi_lib::autoRec(bool allow_restart) {
         }
     // LED While Connected
     } else {
-        static bool lastLedState = true;   // LED last State
+        static bool lastLedState = false;   // LED last State
 
         if(lastLedState != nowState) {
             lastLedState = nowState;    // Update State

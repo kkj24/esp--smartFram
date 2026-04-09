@@ -75,6 +75,49 @@ void send() {
     }
 }
 
+// Display CoolDown At Connecting
+void dispCon() {
+    if(wifi.stateWiFi() || emqx.MQTTState()) {
+        static bool stateNow = false;
+        static bool stateLast = false;
+
+        stateNow = true;
+
+        if(stateLast != stateNow) {
+            stateLast = stateNow;
+            tft_lib.fillScreen(TFT_BLACK);
+        }
+        unsigned long now = millis();
+        static unsigned long last = 0;
+        int interval = 300;
+
+        if(now - last >= interval) {
+            last = now;
+
+            if(wifi.stateWiFi()) {
+                static uint8_t connecting = 0;
+
+                connecting++;
+
+                tft.printF(F("IP Dom:"), 10, 150, tft_lib.color565(120, 120, 120));
+                tft.print(WiFi.softAPIP().toString());
+
+                if(connecting > 5)
+                    connecting = 1;
+
+                tft.WiFiLevel_Icon(25, 69, connecting);
+
+                static bool mqttConnecting = false;
+
+                mqttConnecting = !mqttConnecting;
+
+                tft.MQTTstate_Icon(92, 69, mqttConnecting);
+            }
+        }
+    }
+}
+ 
+
 // ==============================
 // TFT title show
 void title() {
@@ -247,13 +290,35 @@ void tab3() {
 
     unsigned long now = millis();
     static unsigned long last = 0;
-    int interval = 1000;
+    int interval = 500;
 
     if(now - last >= interval) {
         last = now;
 
         tft.printF(F("IP : "), 2, 70, tft_lib.color565(110, 125, 125));
         tft.print(WiFi.localIP().toString());
+
+        tft.println(F("IP-AP : "), 2, 87);
+        tft.print(WiFi.softAPIP().toString());
+
+        tft.println(F("WiFi : "), 2, 105);
+        if(WiFi.SSID().length() > 8) {
+            tft.print(WiFi.SSID().substring(0, 8));
+            tft.print(F("..."));
+        } else if(WiFi.SSID().length() <= 8)
+            tft.print(WiFi.SSID());
+
+        tft.println(F("Status : "), 2, 123);
+        tft.print(F("Connected"));
+
+        static bool statePoint = false;
+
+        statePoint = !statePoint;
+
+        if(statePoint)
+            tft_lib.fillCircle(118, 126, 3, TFT_RED);
+        else
+            tft_lib.fillCircle(118, 126, 3, TFT_BLACK);
     }
 }
 
@@ -404,12 +469,12 @@ void runTAB() {
 // ===========================
 // Automate Set
 void autoSet() {
+    pH.setupLib();
     wifi.setupWiFi();
     emqx.MQTTsetup();
     tft.TFTBegin();
     mois.begin();
-    dht.DHTAutoset();
-    pH.setupLib();
+    dht.DHTAutoset(); 
 
     pinMode(26, INPUT);
     pinMode(27, INPUT);
@@ -421,29 +486,51 @@ void autoRun() {
     bool WIFIStatus = wifi.stateWiFi();
     bool MQTTState = emqx.MQTTState();
 
-    if(!MQTTState && !WIFIStatus) {
+    if(!WIFIStatus && !MQTTState) {
+        static bool stateNow = false;
+        static bool lastState = false;
+
+        stateNow = WIFIStatus;
+        stateNow = MQTTState;
+
+        if(lastState != stateNow) {
+            lastState = stateNow;
+            tft_lib.fillScreen(TFT_BLACK);
+            tft.printF(F("CONNECTED!"), 34, 64, TFT_WHITE);
+        }
+
         unsigned long now = millis();
         static unsigned long last = 0;
         int interval = 1000;
 
+        static bool task1 = false;
+
         static uint8_t count = 0;
-        static bool stateTask = false;
 
         if(now - last >= interval) {
             last = now;
 
             count++;
+
+            if(count == 4)  
+                tft_lib.fillScreen(TFT_BLACK);
+
             if(count >= 5) {
                 count = 5;
-                stateTask = true;
+                task1 = true;
             }
         }
 
-        if(stateTask) {
-            readData(); // Read Data
+        if(task1) {
+            readData();
             send();
             runTAB();
+            ShowDispIcon();
         }
+    } else {
+        dispCon();
     }
-    
+
+    wifi.autoRec(true);
+    emqx.MQTTRec(); 
 }

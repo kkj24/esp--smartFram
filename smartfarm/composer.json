@@ -1,0 +1,10 @@
+{
+    "require": {
+        "php-mqtt/client": "^2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "SmartFarm\\": "src/"
+        }
+    }
+}

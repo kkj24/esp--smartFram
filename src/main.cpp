@@ -9,10 +9,5 @@ void setup() {
 }
 
 void loop() {
-  wifi.autoRec(false);
-  emqx.MQTTRec();
-
-  emqx.run();
-
   autoRun();
 }

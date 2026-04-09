@@ -16,7 +16,7 @@ extern Adafruit_ADS1115 ads_lib2;
 #endif
 
 #ifndef PIN_EN
-#define PIN_EN 22
+#define PIN_EN 32
 #endif
 
 class pH_lib {
