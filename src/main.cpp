@@ -10,4 +10,6 @@ void setup() {
 
 void loop() {
   autoRun();
+
+  yield();
 }

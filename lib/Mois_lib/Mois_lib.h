@@ -29,7 +29,7 @@ class Mois {
         
     private:
         int16_t min_range = 10;
-        int16_t max_range = 28030;
+        int16_t max_range = 26100;
 };
 
 #endif

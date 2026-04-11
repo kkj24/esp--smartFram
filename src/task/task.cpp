@@ -5,7 +5,7 @@ WiFi_lib wifi;
 TFT_Lib tft;
 Mois mois;      // Moisture object
 DHT_Lib dht;    // DHT object
-pH_lib pH;
+//pH_lib pH;
 
 // Mois Data from Library Mois
 uint8_t moisAv = 0;
@@ -19,7 +19,7 @@ uint8_t hum = 0;
 uint8_t temp = 0;
 
 // pH Data
-uint8_t pH_soil = 0;
+//uint8_t pH_soil = 0;
 
 // Read Data Func
 void readData() {
@@ -43,7 +43,7 @@ void readData() {
         dht.readHum(&hum);
         dht.readTemp(&temp);
 
-        pH_soil = pH.pH_raw();
+        //pH_soil = pH.pH_raw();
     }
 }
 
@@ -69,7 +69,7 @@ void send() {
         emqx.saveData(hum, "Hum:");
         emqx.saveData(temp, "Temp:");
 
-        emqx.saveData(pH_soil, "pH:");
+        //emqx.saveData(pH_soil, "pH:");
 
         emqx.sendData();
     }
@@ -196,7 +196,7 @@ void tab1() {
     static uint16_t color_mois4 = TFT_GREEN;
     static uint16_t color_hum = TFT_GREEN;
     static uint16_t color_temp = TFT_GREEN;
-    static uint16_t color_ph = TFT_GREEN;
+    //static uint16_t color_ph = TFT_GREEN;
 
     tft.printF(F("Sensor Log"), 35, 56, tft_lib.color565(98, 38, 115));
 
@@ -234,8 +234,8 @@ void tab1() {
         tft.println(F("Temp"), x, y_text + 8 + 6 + 8 + 6 + 8 + 6);
         tft.soft_pBar(temp, 6, x, y + 8 + 6 + 8 + 6 + 8 + 6, width, height, color_temp);
 
-        tft.println(F("pH"), x + 75, y_text + 8 + 6 + 8 + 6 + 8 + 6);
-        tft.soft_pBar(pH_soil, 7, x + 75, y + 8 + 6 + 8 + 6 + 8 + 6, width, height, color_ph);
+        //tft.println(F("pH"), x + 75, y_text + 8 + 6 + 8 + 6 + 8 + 6);
+        //tft.soft_pBar(pH_soil, 7, x + 75, y + 8 + 6 + 8 + 6 + 8 + 6, width, height, color_ph);
     }
 }
 
@@ -278,8 +278,8 @@ void tab2() {
         tft.println(F("Temp:  "), 2, 118);
         tft.print(String(temp));
 
-        tft.println(F("pH:    "), 2, 134);
-        tft.print(String(pH_soil));
+        //tft.println(F("pH:    "), 2, 134);
+        //tft.print(String(pH_soil));
     }
 }
 
@@ -466,10 +466,73 @@ void runTAB() {
     }
 }
 
+// =================================
+// Indicator LED
+void ledIndicator() {
+    // WiFi Connecting
+
+    bool stateWiFi = wifi.stateWiFi();
+    bool stateMQTT = emqx.MQTTState();
+
+    if(stateWiFi) {
+        static uint8_t faded = 0;
+        ledcWrite(0, faded);
+
+        unsigned long now = millis();
+        static unsigned long last = 0;
+        uint8_t interval = 5;
+
+        if(now - last >= interval) {
+            last = now;
+
+            faded++;
+
+            if(faded >= 255)
+                faded = 0;
+
+            ledcWrite(0, faded);
+        }
+    } else {
+        static bool stateLast = true;
+        bool stateNow = wifi.stateWiFi();
+        if(stateLast != stateNow) {
+            ledcWrite(0, 0);
+            stateLast = stateNow;
+        }
+    }
+ 
+    // MQTT Connecting
+    if(!stateWiFi && stateMQTT) {
+        static uint8_t faded = 255;
+        
+        unsigned long now = millis();
+        static unsigned long last = 0;
+        int interval = 5;
+
+        if(now - last >= interval) {
+            last = now;
+
+            faded--;
+            if(faded <= 0)
+                faded = 255;
+
+            ledcWrite(0, faded);
+        }
+    } else if(!wifi.stateWiFi() && !emqx.MQTTState()) {
+        static bool stateLast = true;
+        bool stateNow = emqx.MQTTState();
+
+        if(stateLast != stateNow) {
+            ledcWrite(0, 0);
+            stateLast = stateNow;
+        }
+    }
+}
+
 // ===========================
 // Automate Set
 void autoSet() {
-    pH.setupLib();
+    //pH.setupLib();
     wifi.setupWiFi();
     emqx.MQTTsetup();
     tft.TFTBegin();
@@ -478,6 +541,9 @@ void autoSet() {
 
     pinMode(26, INPUT);
     pinMode(27, INPUT);
+
+    ledcSetup(0, 15000, 8);
+    ledcAttachPin(2, 0);
 }
 
 // ===========================
@@ -485,31 +551,35 @@ void autoSet() {
 void autoRun() {
     bool WIFIStatus = wifi.stateWiFi();
     bool MQTTState = emqx.MQTTState();
+    
+    static bool task1 = false;
+
+    static bool stateNow = true;
+    static bool lastState = true;
+
+    stateNow = MQTTState;
+    static uint8_t count = 0;
+
+    static bool lastStateWiFi = false;
+    static bool lastStateMQTT = false;
+
+    // Show "Connected" while Connected
+    if(lastState && !stateNow) {
+        tft_lib.fillScreen(TFT_BLACK);
+        tft.printF(F("CONNECTED!"), 34, 64, TFT_WHITE);
+    }
+    
+    lastState = stateNow;
 
     if(!WIFIStatus && !MQTTState) {
-        static bool stateNow = false;
-        static bool lastState = false;
-
-        stateNow = WIFIStatus;
-        stateNow = MQTTState;
-
-        if(lastState != stateNow) {
-            lastState = stateNow;
-            tft_lib.fillScreen(TFT_BLACK);
-            tft.printF(F("CONNECTED!"), 34, 64, TFT_WHITE);
-        }
-
         unsigned long now = millis();
         static unsigned long last = 0;
         int interval = 1000;
 
-        static bool task1 = false;
-
-        static uint8_t count = 0;
-
         if(now - last >= interval) {
             last = now;
 
+            // Counting
             count++;
 
             if(count == 4)  
@@ -521,14 +591,38 @@ void autoRun() {
             }
         }
 
+        static bool lastTask = false;
+
+        // Show Title
+        if(lastTask != task1) {
+            title();
+            lastTask = task1;
+        }
+
+        // Run Task1
         if(task1) {
             readData();
             send();
             runTAB();
             ShowDispIcon();
+            stateNow = false;
+            lastState = false;
         }
     } else {
+        // Update for Connecting Indicator
+        if((lastStateWiFi && !WIFIStatus) || (lastStateMQTT && !MQTTState)) {
+            tft_lib.fillScreen(TFT_BLACK);
+        }
+
+        lastStateWiFi = WIFIStatus;
+        lastStateMQTT = MQTTState;
+
+        task1 = false;
+        count = 0;
+
+        // Show Connecting Indicator
         dispCon();
+        ledIndicator();
     }
 
     wifi.autoRec(true);
