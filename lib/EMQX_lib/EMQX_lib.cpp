@@ -32,13 +32,17 @@ void EMQX::MQTTRec() {
     // Display Serial Monitor
     SerMon();
 
-    String ID = "ESP--smartFarm" + String(WiFi.macAddress());
+    // FIX: Alokasikan ID MQTT hanya sekali pada memori statis agar tidak menyebabkan Heap Corruption / Fragmentation!
+    static String ID = "";
+    if (ID == "") {
+        ID = "ESP--smartFarm" + String(WiFi.macAddress());
+    }
 
     // Reconnect MQTT
     if(stateMqtt) {
         unsigned long now = millis();
         static unsigned long last = 0;
-        uint16_t interval = 1500;
+        uint16_t interval = 5000;
 
         if(now - last >= interval) {
             last = now;

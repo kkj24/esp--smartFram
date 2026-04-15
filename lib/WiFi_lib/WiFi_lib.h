@@ -26,8 +26,8 @@ class WiFi_lib {
         const char *HostName = "ESP--smartFarm--mainSensor";    // ConfigureWiFi Hostname
         
         // AP Config [Login]
-        const char *AP_ssid = "ESP--smartFarm--mainSensor[AP-Login]"; // WiFi AP Name
-        const char *AP_pass = "ESP--12345678";  // WiFi AP Password
+        const char *AP_ssid = "ESP--smartFarm--mainSensor"; // WiFi AP Name
+        const char *AP_pass = "ESP--FAST/mainSensor";  // WiFi AP Password
         
         int Timeout = 35;       // Time Out of Attempting
         

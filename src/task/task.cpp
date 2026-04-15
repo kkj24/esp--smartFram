@@ -1,11 +1,15 @@
 #include "task/task.h"
 
+ESPNow_Lib espnow; // Instance P2P ESP-NOW
 EMQX emqx;
 WiFi_lib wifi;
 TFT_Lib tft;
 Mois mois;      // Moisture object
 DHT_Lib dht;    // DHT object
 //pH_lib pH;
+
+// MAC Robot ESP
+uint8_t targetRobotMAC[] = {0xEC, 0xE3, 0x34, 0x1B, 0x9A, 0x74};
 
 // Mois Data from Library Mois
 uint8_t moisAv = 0;
@@ -47,15 +51,16 @@ void readData() {
     }
 }
 
-// Send Data
+// Mengirim Data ke MQTT sekaligus ke Robot Lokal via ESP-NOW
 void send() {
     unsigned long now = millis();
     static unsigned long last = 0;
-    int interval = 1000;
+    int interval = 3000;
 
     if(now - last >= interval) {
         last = now;
 
+        // --- Skenario 1: MQTT Network ---
         emqx.clearData();
 
         // Send Mois
@@ -69,9 +74,14 @@ void send() {
         emqx.saveData(hum, "Hum:");
         emqx.saveData(temp, "Temp:");
 
-        //emqx.saveData(pH_soil, "pH:");
-
         emqx.sendData();
+
+        JsonDocument rawJsonESP;
+        rawJsonESP["mois_average"] = moisAv;
+        rawJsonESP["temperature"] = temp;
+        rawJsonESP["humidity"] = hum;
+        
+        espnow.sendJson(rawJsonESP);
     }
 }
 
@@ -538,6 +548,9 @@ void autoSet() {
     tft.TFTBegin();
     mois.begin();
     dht.DHTAutoset(); 
+    
+    // Inisiasi sistem komunikasi ESP-NOW 
+    espnow.begin(targetRobotMAC);
 
     pinMode(26, INPUT);
     pinMode(27, INPUT);
@@ -549,6 +562,13 @@ void autoSet() {
 // ===========================
 // Auto Run Func
 void autoRun() {
+    wifi.autoRec(true);
+    emqx.MQTTRec();
+    
+    // Mengekstrak pengiriman JSON ESP-NOW masuk secara aman 
+    // tanpa merusak Memory Wi-Fi di Core 0!
+    espnow.run();
+
     bool WIFIStatus = wifi.stateWiFi();
     bool MQTTState = emqx.MQTTState();
     
@@ -624,7 +644,4 @@ void autoRun() {
         dispCon();
         ledIndicator();
     }
-
-    wifi.autoRec(true);
-    emqx.MQTTRec(); 
 }

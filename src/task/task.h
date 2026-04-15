@@ -8,6 +8,9 @@
 #include "WiFi_lib.h"
 #include "EMQX_lib.h"
 #include "pH_lib.h"
+#include "ESPNow_lib.h"
+
+extern ESPNow_Lib espnow;
 
 extern pH_lib pH;
 

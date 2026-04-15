@@ -9,6 +9,7 @@ DHT_Lib::DHT_Lib() {
 // Setting up DHT Automate
 void DHT_Lib::DHTAutoset() {
     dht_lib.begin();
+    delay(100);
 }
 
 // Read DHT Air Humidity
@@ -19,5 +20,5 @@ void DHT_Lib::readHum(uint8_t *hum) {
 // Read DHT Air Temperature
 void DHT_Lib::readTemp(uint8_t *temp) {
     *temp = dht_lib.readTemperature();
-}
+} 
 

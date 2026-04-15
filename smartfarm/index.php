@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌱 Smart Farm Dashboard</title>
+    <title>🌱 FAST</title>
     <meta name="description" content="Real-time monitoring dashboard for ESP32 Smart Farm sensors">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -527,7 +527,7 @@
             <div class="brand">
                 <div class="brand-icon">🌱</div>
                 <div>
-                    <h1>Smart Farm</h1>
+                    <h1>FAST</h1>
                     <p>FNC Comp — Main Sensor</p>
                 </div>
             </div>
@@ -614,7 +614,7 @@
             <div class="chart-head">
                 <div class="chart-title">🌡️ Suhu</div>
             </div>
-            <div class="chart-hint">Scroll zoom · Drag pan · Double-click reset</div>
+            <div class="chart-hint">Scroll zoom ·</div>
             <div class="chart-container"><canvas id="chTemp"></canvas></div>
         </div>
 
@@ -622,7 +622,7 @@
             <div class="chart-head">
                 <div class="chart-title">💨 Kelembapan Udara</div>
             </div>
-            <div class="chart-hint">Scroll zoom · Drag pan · Double-click reset</div>
+            <div class="chart-hint">Scroll zoom ·</div>
             <div class="chart-container"><canvas id="chHum"></canvas></div>
         </div>
 
@@ -630,7 +630,7 @@
             <div class="chart-head">
                 <div class="chart-title">💧 Kelembapan Tanah</div>
             </div>
-            <div class="chart-hint">Scroll zoom · Drag pan · Double-click reset</div>
+            <div class="chart-hint">Scroll zoom ·</div>
             <div class="chart-container" style="height:280px;"><canvas id="chMois"></canvas></div>
         </div>
 

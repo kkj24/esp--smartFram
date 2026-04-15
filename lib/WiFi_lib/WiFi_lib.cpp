@@ -45,13 +45,14 @@ void WiFi_lib::autoRec(bool allow_restart) {
         // Timer Var
         unsigned long now = millis();
         static unsigned long last = 0;
-        int interval = 1500;
+        int interval = 5000;
 
         // Timer of WiFi Reconnect
         if(now - last >= interval) {
             last = now; // Update Timer
 
             WiFi.begin(STA_ssid.c_str(), STA_pass.c_str()); // Reconnect
+            WiFi.reconnect();
         }
     }
 }
@@ -63,6 +64,11 @@ void WiFi_lib::setupWiFi() {
     WiFi.softAP(AP_ssid, AP_pass);  // Set AP mode Config
     
     WiFi.begin(STA_ssid.c_str(), STA_pass.c_str()); // Set STA mode Config
+
+    WiFi.reconnect();
+
+    WiFi.setAutoConnect(true);
+    WiFi.setAutoReconnect(true);
 
     // LED Built-In Indicator Setup
     ledcSetup(0, 10000, 8);
@@ -81,25 +87,6 @@ void WiFi_lib::setupWiFi() {
 // WiFi Auto Display Reconnect to TFT Disp
 void WiFi_lib::dispRec() {
     bool nowState = stateWiFi();
-    
-    // while Disconnect
-    if(nowState) {
-        // Var of Timer
-        unsigned long now = millis();
-        static unsigned long last = 0;
-        int interval = 1000;
-
-        // Timer
-        if(now - last >= interval) {
-            last = now; // Update Timer
-
-            
-        }
-        
-    // while Connected
-    } else if(!nowState) {
-
-    }
 }
 
 // WiFi Auto Display to Serial Monitor
@@ -199,16 +186,16 @@ void WiFi_lib::monitDisp() {
             int buzzer_tone[3] = {659, 784, 1046};
 
             if(now - last >= interval) {
-                    last = now;
-                    
-                    ledcWriteTone(2, buzzer_tone[tones]);
+                last = now;
+                
+                ledcWriteTone(2, buzzer_tone[tones]);
 
-                    tones++;
-                    
-                    if(tones > 3) {
-                        toneState = false;
-                        ledcWriteTone(2, 0);
-                    }
+                tones++;
+                
+                if(tones > 3) {
+                    toneState = false;
+                    ledcWriteTone(2, 0);
+                }
             }
         }
     }
